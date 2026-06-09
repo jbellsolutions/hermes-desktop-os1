@@ -87,6 +87,43 @@ struct OS1Palette: Sendable {
         danger:           Color(hex: 0xC65A43),  // re-uses the coral so errors blend into the palette
         success:          Color(hex: 0x7BA88E)
     )
+
+    static let highContrast = OS1Palette(
+        bgCream: Color(hex: 0x121212),
+        bgBeige: Color(hex: 0x1A1A1A),
+
+        coral:    Color(hex: 0x141414),
+        coral500: Color(hex: 0x181818),
+        coral400: Color(hex: 0x222222),
+        coral300: Color(hex: 0x2E2E2E),
+        coral600: Color(hex: 0x0A0A0A),
+
+        iconStroke:      Color.white.opacity(0.88),
+        iconStrokeHover: Color.white.opacity(1.00),
+        iconWarm:        Color.white.opacity(0.80),
+        iconTan:         Color.white.opacity(0.75),
+        iconCoral:       Color.white.opacity(0.92),
+        iconPurple:      Color.white.opacity(0.82),
+
+        onCoralPrimary:   .white.opacity(0.96),
+        onCoralSecondary: .white.opacity(0.78),
+        onCoralMuted:     .white.opacity(0.55),
+
+        onCreamPrimary:   .white.opacity(0.96),
+        onCreamSecondary: .white.opacity(0.78),
+        onCreamMuted:     .white.opacity(0.55),
+
+        glassFill:        .white.opacity(0.08),
+        glassBorder:      .white.opacity(0.22),
+        glassFillHover:   .white.opacity(0.14),
+        glassBorderHover: .white.opacity(0.36),
+
+        darkOverlay:      Color.black.opacity(0.28),
+
+        warning:          Color(hex: 0xF0B429),
+        danger:           Color(hex: 0xFF6B6B),
+        success:          Color(hex: 0x6BCB77)
+    )
 }
 
 // MARK: - Typography roles
@@ -228,6 +265,33 @@ struct OS1Theme: Sendable {
         typography: .standard,
         motion: .standard
     )
+
+    static let highContrast = OS1Theme(
+        palette: .highContrast,
+        typography: .standard,
+        motion: .standard
+    )
+}
+
+enum UIThemeStyle: String, Codable, CaseIterable, Identifiable {
+    case standard
+    case highContrast
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .standard: "Original"
+        case .highContrast: "High contrast"
+        }
+    }
+
+    var resolved: OS1Theme {
+        switch self {
+        case .standard: .standard
+        case .highContrast: .highContrast
+        }
+    }
 }
 
 // MARK: - Environment integration

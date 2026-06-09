@@ -204,6 +204,33 @@ for the canonical palette and motion vocabulary that this app borrows.
 
 License: [MIT](LICENSE). All upstream copyrights are preserved.
 
+## Multi-host SSH (DigitalOcean and beyond)
+
+This fork adds operator tooling for teams running Hermes on several
+SSH hosts (local Mac profiles, VPS droplets, etc.):
+
+- **Host switcher** in the sidebar when you have 2+ saved connections
+- **`--profile` pinning** for chat/resume so remote keys in
+  `~/.hermes/profiles/<name>/` are used correctly
+- **High-contrast theme** fixes for the session composer footer
+- **Scripts** under [`scripts/`](scripts/) — see [`scripts/README.md`](scripts/README.md)
+
+```sh
+cp scripts/config/hosts.example.json scripts/config/hosts.json
+# edit SSH aliases to match ~/.ssh/config
+python3 scripts/sync-os1-connections.py
+```
+
+For droplets without SSH yet, copy `scripts/config/droplets.example.json`
+to `droplets.json` and use the VNC bootstrap scripts (requires `doctl`,
+Playwright, and an HTTP host serving your `k.sh` installer).
+
+## Fork
+
+Upstream: [nickvasilescu/hermes-desktop-os1](https://github.com/nickvasilescu/hermes-desktop-os1)
+
+This copy: [jbellsolutions/hermes-desktop-os1](https://github.com/jbellsolutions/hermes-desktop-os1)
+
 ## Status
 
 This is an early build. Translation polish, GitHub Pages site, and

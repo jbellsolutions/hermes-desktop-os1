@@ -1,0 +1,14 @@
+{
+  "hosts": [
+    {
+      "ssh_alias": "local-mac",
+      "label": "This Mac (Local Hermes)",
+      "hermes_profile": null
+    },
+    {
+      "ssh_alias": "my-vps",
+      "label": "Remote VPS",
+      "hermes_profile": "default"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 private let workbenchPrimaryColumnWidth: CGFloat = 460
@@ -72,6 +73,9 @@ struct RootView: View {
         } message: {
             Text(L10n.string("USER.md, MEMORY.md, or SOUL.md has unsaved edits."))
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            appState.connectionStore.reloadConnectionsFromDisk()
+        }
     }
 
     private var activeOrgoComputerID: String? {
@@ -136,10 +140,37 @@ struct RootView: View {
                 .padding(.bottom, 18)
             }
 
+            appearanceButton
+                .padding(.horizontal, 10)
+                .padding(.bottom, 8)
+
             voiceModeButton
                 .padding(.horizontal, 10)
                 .padding(.bottom, 14)
         }
+    }
+
+    private var appearanceButton: some View {
+        Button {
+            let store = appState.connectionStore
+            store.uiTheme = store.uiTheme == .highContrast ? .standard : .highContrast
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "circle.lefthalf.filled")
+                    .font(.system(size: 13, weight: .regular))
+                    .frame(width: 18)
+                Text(L10n.string("Appearance"))
+                    .os1Style(theme.typography.body)
+                Spacer(minLength: 0)
+                Text(appState.connectionStore.uiTheme.displayName)
+                    .os1Style(theme.typography.smallCaps)
+                    .lineLimit(1)
+            }
+            .foregroundStyle(theme.palette.onCoralSecondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+        }
+        .buttonStyle(.plain)
     }
 
     private var voiceModeButton: some View {
@@ -322,11 +353,7 @@ private struct WorkspaceSidebarCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(connection.label)
-                .os1Style(theme.typography.titlePanel)
-                .foregroundStyle(theme.palette.onCoralPrimary)
-                .lineLimit(1)
-                .truncationMode(.tail)
+            hostControl
 
             HStack(spacing: 6) {
                 profileControl
@@ -343,6 +370,50 @@ private struct WorkspaceSidebarCard: View {
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private var hostControl: some View {
+        let hosts = appState.connectionStore.connections
+        if hosts.count > 1 {
+            Menu {
+                ForEach(hosts) { host in
+                    Button {
+                        guard host.id != connection.id else { return }
+                        appState.connect(to: host)
+                    } label: {
+                        if host.id == connection.id {
+                            Label(host.label, systemImage: "checkmark")
+                        } else {
+                            Text(host.label)
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(connection.label)
+                        .os1Style(theme.typography.titlePanel)
+                        .foregroundStyle(theme.palette.onCoralPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(theme.palette.onCoralMuted)
+                }
+            }
+            .buttonStyle(.plain)
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize(horizontal: false, vertical: true)
+            .disabled(appState.isBusy)
+        } else {
+            Text(connection.label)
+                .os1Style(theme.typography.titlePanel)
+                .foregroundStyle(theme.palette.onCoralPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
     }
 
     @ViewBuilder

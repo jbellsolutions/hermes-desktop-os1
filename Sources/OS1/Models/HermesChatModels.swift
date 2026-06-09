@@ -4,15 +4,25 @@ struct HermesChatInvocation: Equatable, Sendable {
     let sessionID: String?
     let prompt: String
     let autoApproveCommands: Bool
+    let hermesProfileName: String?
 
-    init(sessionID: String?, prompt: String, autoApproveCommands: Bool = false) {
+    init(
+        sessionID: String?,
+        prompt: String,
+        autoApproveCommands: Bool = false,
+        connection: ConnectionProfile? = nil
+    ) {
         self.sessionID = sessionID
         self.prompt = prompt
         self.autoApproveCommands = autoApproveCommands
+        self.hermesProfileName = connection?.trimmedHermesProfile
     }
 
     var arguments: [String] {
         var values = [String]()
+        if let hermesProfileName {
+            values.append(contentsOf: ["--profile", hermesProfileName])
+        }
         if let sessionID {
             values.append(contentsOf: ["--resume", sessionID])
         }

@@ -15,6 +15,11 @@ final class ConnectionStore: ObservableObject {
             savePreferences()
         }
     }
+    @Published var uiTheme: UIThemeStyle = .highContrast {
+        didSet {
+            savePreferences()
+        }
+    }
     @Published private(set) var workspaceFileBookmarks: [WorkspaceFileBookmark] = [] {
         didSet {
             savePreferences()
@@ -56,6 +61,21 @@ final class ConnectionStore: ObservableObject {
             lastConnectionID = nil
         }
         saveConnections()
+    }
+
+    func reloadConnectionsFromDisk() {
+        do {
+            let data = try Data(contentsOf: paths.connectionsURL)
+            let decoded = try decoder.decode([ConnectionProfile].self, from: data)
+            connections = decoded.sorted {
+                $0.label.localizedCaseInsensitiveCompare($1.label) == .orderedAscending
+            }
+            try? fileManagerSetPrivatePermissions(at: paths.connectionsURL)
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile {
+            connections = []
+        } catch {
+            return
+        }
     }
 
     func bookmarks(for workspaceScopeFingerprint: String) -> [WorkspaceFileBookmark] {
@@ -170,6 +190,7 @@ final class ConnectionStore: ObservableObject {
         let preferences = AppPreferences(
             lastConnectionID: lastConnectionID,
             terminalTheme: terminalTheme,
+            uiTheme: uiTheme,
             workspaceFileBookmarks: workspaceFileBookmarks,
             pinnedSessions: pinnedSessions
         )
@@ -206,17 +227,20 @@ final class ConnectionStore: ObservableObject {
             let decoded = try decoder.decode(AppPreferences.self, from: data)
             lastConnectionID = decoded.lastConnectionID
             terminalTheme = decoded.terminalTheme ?? .defaultValue
+            uiTheme = decoded.uiTheme ?? .highContrast
             workspaceFileBookmarks = decoded.workspaceFileBookmarks ?? []
             pinnedSessions = decoded.pinnedSessions ?? []
             try? fileManagerSetPrivatePermissions(at: paths.preferencesURL)
         } catch let error as CocoaError where error.code == .fileReadNoSuchFile {
             lastConnectionID = nil
             terminalTheme = .defaultValue
+            uiTheme = .highContrast
             workspaceFileBookmarks = []
             pinnedSessions = []
         } catch {
             lastConnectionID = nil
             terminalTheme = .defaultValue
+            uiTheme = .highContrast
             workspaceFileBookmarks = []
             pinnedSessions = []
             reportPersistenceError(
@@ -237,6 +261,7 @@ final class ConnectionStore: ObservableObject {
 private struct AppPreferences: Codable {
     var lastConnectionID: UUID?
     var terminalTheme: TerminalThemePreference?
+    var uiTheme: UIThemeStyle?
     var workspaceFileBookmarks: [WorkspaceFileBookmark]?
     var pinnedSessions: [PinnedSession]?
 }

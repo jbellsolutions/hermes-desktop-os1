@@ -1,0 +1,20 @@
+{
+  "install_host": "YOUR_HTTP_HOST_IP",
+  "install_script": "k.sh",
+  "droplets": [
+    {
+      "id": 123456789,
+      "ip": "203.0.113.10",
+      "name": "example-droplet",
+      "flags": []
+    }
+  ],
+  "probe": [
+    {
+      "name": "example-droplet",
+      "ip": "203.0.113.10"
+    }
+  ],
+  "ssh_keys": ["~/.ssh/id_ed25519"],
+  "ssh_users": ["root", "claw", "ubuntu"]
+}

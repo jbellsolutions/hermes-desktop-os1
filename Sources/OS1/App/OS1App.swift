@@ -18,7 +18,7 @@ struct OS1App: App {
                 RootView()
                     .environmentObject(appState)
             }
-            .os1Theme()
+            .os1Theme(appState.connectionStore.uiTheme.resolved)
             .foregroundStyle(.os1OnCoralPrimary)
             .tint(.os1OnCoralPrimary)
             .preferredColorScheme(.dark)

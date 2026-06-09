@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 private let sessionDetailBottomID = "session-detail-bottom"
@@ -79,6 +80,8 @@ struct SessionDetailView: View {
     let onDeleteSession: (SessionSummary) async -> Void
     let onStartSession: (String, Bool) async -> Bool
     let onSendMessage: (String, Bool) async -> Bool
+
+    @Environment(\.os1Theme) private var theme
 
     @State private var showDeleteConfirmation = false
     @State private var scrollRequest = SessionScrollRequest()
@@ -230,10 +233,10 @@ struct SessionDetailView: View {
         .id(session?.id ?? "new-session")
         .padding(.horizontal, 24)
         .padding(.vertical, 14)
-        .background(Color.os1Coral)
+        .background(theme.palette.coral)
         .overlay(alignment: .top) {
             Rectangle()
-                .fill(Color.os1OnCoralMuted.opacity(0.18))
+                .fill(theme.palette.onCoralMuted.opacity(0.18))
                 .frame(height: 1)
         }
     }
@@ -397,6 +400,8 @@ private struct SessionSummaryPanel: View {
 }
 
 private struct SessionComposerPanel: View {
+    @Environment(\.os1Theme) private var theme
+
     let title: String
     let placeholder: String
     let errorMessage: String?
@@ -438,10 +443,11 @@ private struct SessionComposerPanel: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "bubble.left.and.bubble.right")
-                    .foregroundStyle(Color.os1OnCoralPrimary)
+                    .foregroundStyle(theme.palette.onCoralPrimary)
 
                 Text(L10n.string(title))
                     .font(.os1TitlePanel)
+                    .foregroundStyle(theme.palette.onCoralPrimary)
 
                 Spacer()
 
@@ -460,11 +466,11 @@ private struct SessionComposerPanel: View {
                 HermesInsetSurface {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.os1OnCoralPrimary)
+                            .foregroundStyle(theme.palette.onCoralPrimary)
 
                         Text(errorMessage)
                             .font(.os1Body)
-                            .foregroundStyle(.os1OnCoralSecondary)
+                            .foregroundStyle(theme.palette.onCoralSecondary)
                             .textSelection(.enabled)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -477,11 +483,11 @@ private struct SessionComposerPanel: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color.os1GlassFill)
+                .fill(theme.palette.glassFill)
         )
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(Color.os1OnCoralPrimary.opacity(0.08), lineWidth: 1)
+                .strokeBorder(theme.palette.onCoralPrimary.opacity(0.08), lineWidth: 1)
         }
     }
 
@@ -522,13 +528,13 @@ private struct SessionComposerPanel: View {
             .background {
                 if !usesExpandedEditor {
                     RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        .fill(Color.os1OnCoralSecondary.opacity(0.08))
+                        .fill(theme.palette.onCoralSecondary.opacity(0.08))
                 }
             }
             .overlay {
                 if !usesExpandedEditor {
                     RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        .strokeBorder(Color.os1OnCoralPrimary.opacity(0.08), lineWidth: 1)
+                        .strokeBorder(theme.palette.onCoralPrimary.opacity(0.08), lineWidth: 1)
                 }
             }
             .contentShape(Rectangle())
@@ -559,12 +565,15 @@ private struct SessionComposerPanel: View {
         ZStack(alignment: .topLeading) {
             if showsEditorBackground {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.os1OnCoralSecondary.opacity(0.08))
+                    .fill(theme.palette.onCoralSecondary.opacity(0.08))
             }
 
             SessionPromptTextView(
                 text: $draft,
                 placeholder: placeholderText,
+                textColor: NSColor(theme.palette.onCoralPrimary),
+                placeholderColor: NSColor(theme.palette.onCoralMuted),
+                insertionPointColor: NSColor(theme.palette.onCoralPrimary),
                 isFocused: $isEditorFocused,
                 isDisabled: isSending,
                 onCommandReturn: submit
@@ -575,7 +584,7 @@ private struct SessionComposerPanel: View {
         .overlay {
             if showsEditorBackground {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.os1OnCoralPrimary.opacity(0.08), lineWidth: 1)
+                    .strokeBorder(theme.palette.onCoralPrimary.opacity(0.08), lineWidth: 1)
             }
         }
     }
@@ -685,6 +694,9 @@ private struct SessionPromptTextView: NSViewRepresentable {
     @Binding var text: String
 
     let placeholder: String
+    let textColor: NSColor
+    let placeholderColor: NSColor
+    let insertionPointColor: NSColor
     let isFocused: FocusState<Bool>.Binding
     let isDisabled: Bool
     let onCommandReturn: () -> Void
@@ -709,8 +721,9 @@ private struct SessionPromptTextView: NSViewRepresentable {
         textView.isAutomaticTextReplacementEnabled = false
         textView.allowsUndo = true
         textView.font = .systemFont(ofSize: NSFont.systemFontSize)
-        textView.textColor = .labelColor
-        textView.insertionPointColor = .controlAccentColor
+        textView.textColor = textColor
+        textView.insertionPointColor = insertionPointColor
+        textView.placeholderColor = placeholderColor
         textView.textContainerInset = .zero
         textView.textContainer?.lineFragmentPadding = 0
         textView.textContainer?.widthTracksTextView = true
@@ -739,6 +752,9 @@ private struct SessionPromptTextView: NSViewRepresentable {
         }
 
         textView.placeholder = placeholder
+        textView.placeholderColor = placeholderColor
+        textView.textColor = textColor
+        textView.insertionPointColor = insertionPointColor
         textView.commandReturnAction = onCommandReturn
         configure(textView)
         updateFocus(for: textView)
@@ -799,6 +815,12 @@ private final class PlaceholderCommandTextView: NSTextView {
         }
     }
 
+    var placeholderColor = NSColor.tertiaryLabelColor {
+        didSet {
+            needsDisplay = true
+        }
+    }
+
     var commandReturnAction: (() -> Void)?
 
     override func draw(_ dirtyRect: NSRect) {
@@ -808,7 +830,7 @@ private final class PlaceholderCommandTextView: NSTextView {
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize),
-            .foregroundColor: NSColor.tertiaryLabelColor
+            .foregroundColor: placeholderColor
         ]
         NSAttributedString(string: placeholder, attributes: attributes)
             .draw(at: textContainerOrigin)

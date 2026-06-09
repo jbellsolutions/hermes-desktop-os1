@@ -97,4 +97,29 @@ struct HermesChatInvocationTests {
         ])
         #expect(invocation.commandLine == "hermes --profile researcher --resume 'debug session'\\''s final turn'")
     }
+
+    @Test
+    func chatInvocationPinsCustomHermesProfile() {
+        let connection = ConnectionProfile(
+            label: "Host",
+            sshHost: "example.local",
+            hermesProfile: "supersan"
+        )
+        let invocation = HermesChatInvocation(
+            sessionID: "session-123",
+            prompt: "ping",
+            connection: connection
+        )
+
+        #expect(invocation.arguments == [
+            "--profile",
+            "supersan",
+            "--resume",
+            "session-123",
+            "chat",
+            "--quiet",
+            "--query",
+            "ping"
+        ])
+    }
 }

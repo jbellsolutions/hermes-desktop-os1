@@ -16,7 +16,8 @@ final class HermesChatService: @unchecked Sendable {
         let invocation = HermesChatInvocation(
             sessionID: sessionID,
             prompt: prompt,
-            autoApproveCommands: autoApproveCommands
+            autoApproveCommands: autoApproveCommands,
+            connection: connection
         )
         let script = try RemotePythonScript.wrap(
             HermesChatRequest(
