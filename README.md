@@ -1,6 +1,6 @@
 # Hermes Desktop - OS1 Edition
 
-> **OS1 by Element Software** · powered by Orgo · forked from Hermes Desktop
+> **OS1 by Element Software** · powered by [Orgo](https://orgo.ai?r=aiguy) · forked from Hermes Desktop
 
 A native macOS interface for an AI agent that lives in a cloud computer.
 Inspired by *Her* (2013): warm coral on cream, thin type, calm motion.
