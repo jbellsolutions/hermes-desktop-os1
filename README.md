@@ -10,6 +10,8 @@ focused workspace: sessions, kanban, files, skills, cron jobs, and a
 real terminal. The infrastructure is Orgo; the agent on it is Hermes.
 The product you touch is OS1.
 
+> **Orgo partner offer:** By the way, if you use our Orgo link, you’ll get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
+
 ## What you get
 
 - **Cloud computers, end to end**: paste your API key once, pick a
